@@ -1,12 +1,12 @@
-#### Inject dv metadata of hevc video for macOS
+### Inject dv metadata of hevc video for macOS
 
-## This script will extract dolby vision metadata from a hevc .mkv/.mp4 video,
-## copy another hevc .mkv video with same dv profile but no dv metadata
-## and then output the video having those metadata injected.
+#### This script will extract dolby vision metadata from a hevc .mkv/.mp4 video,
+#### copy another hevc .mkv video with same dv profile but no dv metadata
+#### and then output the video having those metadata injected.
 
-# Argument1: full path of source video 1 (.mkv/.mp4). Its dv metadata would be extracted [Optional]
-# Argument2: full path of source video 2 (.mkv/.mp4). Its video and audio would be copied [Optional]
-# Argument3: full path of output(work) folder [Optional]
+##### Argument1: full path of source video 1 (.mkv/.mp4). Its dv metadata would be extracted [Optional]
+##### Argument2: full path of source video 2 (.mkv/.mp4). Its video and audio would be copied [Optional]
+##### Argument3: full path of output(work) folder [Optional]
 
 
 #### How Use :
@@ -15,7 +15,7 @@
 ` the path of source video which its content will be copied and`
 ` the copied video will be injected with dv metadata.`
 
-##### =-> Download :
+#### Download :
 ```
 cd ~/Desktop && git clone https://github.com/alpha-0/inject-hevc-dv-metadata.git && \
 chmod 755 ~/Desktop/inject-hevc-dv-metadata/inject-hevc-dv-metadata.command
@@ -35,7 +35,7 @@ chmod 755 ~/Desktop/inject-hevc-dv-metadata/inject-hevc-dv-metadata.command
 ` dovi_tool (exec) : CLI tool for working with Dolby Vision ( https://github.com/quietvoid/dovi_tool )`
 ` MKVToolNix (app) : a set of tools to create, alter and inspect mkv file ( https://mkvtoolnix.download/downloads.html )`
 
-##### x-> To Report Bug :
+#### To Report Bug :
 `Please Report to`
 https://github.com/alpha-0/inject-hevc-dv-metadata/issues
 
