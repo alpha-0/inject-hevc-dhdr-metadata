@@ -1,12 +1,12 @@
 #!/bin/sh
 # Inject dv metadata of hevc video for macOS
-# This script will extract dolby vision metadata from a hevc .mkv/.mp4 video,
-# copy another hevc .mkv/.mp4 video with same dv profile but no dv metadata
-# and then output the video having those metadata injected.
+# This script will extract dolby vision (dv) metadata from a hevc .mkv/.mp4 video,
+# copy the content of another hevc .mkv/.mp4 video with same dv profile but missing dv metadata
+# and then output those content to a new .mkv video with the dv metadata injected.
 #
 # Argument1: full path of source video 1 (.mkv/.mp4). Its dv metadata would be extracted [Optional]
 # Argument2: full path of source video 2 (.mkv/.mp4). Its video and audio would be copied [Optional]
-# Argument3: full path of output(work) folder [Optional]
+# Argument3: full path of output (work) folder [Optional]
 
 
 ## Settings
@@ -164,7 +164,7 @@ fi
 echo
 # Set output folder path
 if [[ -z ${OUTPUT_FOLDER} && -z $3 ]]; then
-  tput bold ; echo ; echo '♻️  ' 'Input full path of output(work) folder : ' ; tput sgr0
+  tput bold ; echo ; echo '♻️  ' 'Input full path of output (work) folder : ' ; tput sgr0
   tput bold ; echo ; echo '    ' '( Empty means using the same folder as source video 2 )' ; tput sgr0
   echo
   echo '   Tips: You can drag and drop a folder here in order to'
