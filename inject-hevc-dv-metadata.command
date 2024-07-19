@@ -1,7 +1,7 @@
 #!/bin/sh
 # Inject dv metadata of hevc video for macOS
 # This script will extract dolby vision metadata from a hevc .mkv/.mp4 video,
-# copy another hevc .mkv video with same dv profile but no dv metadata
+# copy another hevc .mkv/.mp4 video with same dv profile but no dv metadata
 # and then output the video having those metadata injected.
 #
 # Argument1: full path of source video 1 (.mkv/.mp4). Its dv metadata would be extracted [Optional]
