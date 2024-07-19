@@ -9,7 +9,7 @@ and then output the video having those metadata injected.
 ##### Argument3: full path of output(work) folder [Optional]
 
 
-### How Use :
+### How to Use :
 Run the command script directly. It will request your input for
 both the path of video with dv metadata and
 the path of source video which its content will be copied.
