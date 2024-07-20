@@ -10,7 +10,7 @@
 
 
 ## Settings
-# Set the file suffix for the target video (Cannot be empty)
+# Set the file suffix for the target video (CANNOT BE EMPTY)
 OUTPUT_SUFFIX=_dv-injected
 
 # Set the output(work) folder. Empty means using the same folder as source video 2.
@@ -99,6 +99,13 @@ fi
 #else
 #  echo mp4muxer found: ${MP4MUXER_BIN}
 #fi
+
+# Check suffix of target file name
+if [ -z "$OUTPUT_SUFFIX" ]; then
+  echo ERROR in setting "OUTPUT_SUFFIX" variable
+  echo Please make sure the variable is not empty
+  exit 1
+fi
 
 
 ## Check and request for the dv video and the source video files
@@ -308,7 +315,7 @@ if [ $? -eq 0 ]; then
   echo
   echo '   Tips: If you want a mp4 file instead of mkv, we recommend using'
   echo '         "Subler" mac app to repack it. It'"'"'s the one we know which can'
-  echo '         mux mkv/mp4 to mp4 without broken the index of atmos audio'
+  echo '         mux mkv/mp4 to mp4 without breaking the index of atmos audio'
   echo '         and can import the chapter index too.'
   echo
 
