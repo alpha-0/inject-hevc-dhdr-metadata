@@ -128,7 +128,6 @@ fi
 ## Check and request for the dv video and the source video files
 tput bold ; echo ; echo '♻️  ' 'Checking required input files' ; tput sgr0
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-cd "${SCRIPTPATH}"
 echo
 echo Current Path: ${SCRIPTPATH}
 echo
