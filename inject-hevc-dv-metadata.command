@@ -62,7 +62,7 @@ MKVTOOLNIX_BIN_PATH=""
 APP_DIR=${APP_DIR%/}
 for mkvdir in $(find ${APP_DIR}/MKVToolNix*.app -type d -name MacOS); do
   if [ -d "$mkvdir" ]; then
-    MKVTOOLNIX_BIN_PATH=$mkvdir/
+    MKVTOOLNIX_BIN_PATH=$(realpath $mkvdir)/
     echo MKVToolNix found: ${MKVTOOLNIX_BIN_PATH}
   fi
 done 2>/dev/null
