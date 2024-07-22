@@ -70,6 +70,7 @@ APP_DIR="/Applications/"
 
 # Check MKVToolNix installed path
 tput bold ; echo ; echo '♻️  ' 'Checking the required tools' ; tput sgr0
+echo
 MKVTOOLNIX_BIN_PATH=""
 APP_DIR=${APP_DIR%/}
 for mkvdir in $(find ${APP_DIR}/MKVToolNix*.app -type d -name MacOS); do
@@ -81,63 +82,74 @@ done 2>/dev/null
 if [[ -z ${MKVTOOLNIX_BIN_PATH} ]]; then
 	echo ERROR in finding MKVToolNix\*.app
   echo Please install the app into ${APP_DIR}
-  exit 1
+  MISSING_TOOLS=TRUE
 fi
 
 # Check ffmpeg installed path
+echo
 if [ ! -f "$FFMPEG_BIN" ]; then
   echo ERROR in finding ffmpeg
   echo Please make sure the binary is okay at ${FFMPEG_BIN}
-  exit 1
+  MISSING_TOOLS=TRUE
 else
   echo ffmpeg found: ${FFMPEG_BIN}
 fi
 
 # Check ffprobe installed path
+#echo
 #if [ ! -f "$FFPROBE_BIN" ]; then
 #  echo ERROR in finding ffprobe
 #  echo Please make sure the binary is okay at ${FFPROBE_BIN}
-#  exit 1
+#  MISSING_TOOLS=TRUE
 #else
 #  echo ffprobe found: ${FFPROBE_BIN}
 #fi
 
 # Check hdr10plus_tool installed path
+echo
 if [ ! -f "$HDR10PLUS_TOOL_BIN" ]; then
   echo ERROR in finding hdr10plus_tool
   echo Please make sure the binary is okay at ${HDR10PLUS_TOOL_BIN}
-  exit 1
+  MISSING_TOOLS=TRUE
 else
   echo hdr10plus_tool found: ${HDR10PLUS_TOOL_BIN}
 fi
 
 # Check dovi_tool installed path
+echo
 if [ ! -f "$DOVI_TOOL_BIN" ]; then
   echo ERROR in finding dovi_tool
   echo Please make sure the binary is okay at ${DOVI_TOOL_BIN}
-  exit 1
+  MISSING_TOOLS=TRUE
 else
   echo dovi_tool found: ${DOVI_TOOL_BIN}
 fi
 
 # Check mp4muxer installed path
+#echo
 #if [ ! -f "$MP4MUXER_BIN" ]; then
 #  echo ERROR in finding mp4muxer
 #  echo Please make sure the binary is okay at ${MP4MUXER_BIN}
-#  exit 1
+#  MISSING_TOOLS=TRUE
 #else
 #  echo mp4muxer found: ${MP4MUXER_BIN}
 #fi
 
 # Check suffix of target file name
 if [ -z "$OUTPUT_DV_SUFFIX" ]; then
+  echo
   echo ERROR in setting "OUTPUT_DV_SUFFIX" variable
   echo Please make sure the variable is not empty
   exit 1
 fi
 if [ -z "$OUTPUT_HDR10PLUS_SUFFIX" ]; then
+  echo
   echo ERROR in setting "OUTPUT_HDR10PLUS_SUFFIX" variable
   echo Please make sure the variable is not empty
+  exit 1
+fi
+
+if [ -n "${MISSING_TOOLS}" ]; then
   exit 1
 fi
 
