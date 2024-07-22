@@ -43,7 +43,7 @@ REPLACE_DV_METADATA=FALSE
 REPLACE_HDR10PLUS_METADATA=FALSE
 
 # Enable cleaning up temporary files after creating the target video (Enable: TRUE)
-CLEAN_UP_ON_SUCCESS=FALSE
+CLEAN_UP_ON_SUCCESS=TRUE
 
 
 ## Settings of Required Tools (+ MKVToolNix app installed in Applications folder)
