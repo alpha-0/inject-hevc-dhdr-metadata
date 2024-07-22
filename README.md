@@ -29,13 +29,13 @@ If you are using terminal, you can run the command script with arguments as foll
 
 ### Download :
 ```
-cd ~/Desktop && git clone https://github.com/alpha-0/inject-hevc-hdr-metadata.git && \
-chmod 755 ~/Desktop/inject-hevc-dv-metadata/inject-hevc-hdr-metadata.command
+cd ~/Desktop && git clone https://github.com/alpha-0/inject-hevc-dhdr-metadata.git && \
+chmod 755 ~/Desktop/inject-hevc-dhdr-metadata/inject-hevc-dhdr-metadata.command
 ```
 <BR/>
 
 ### Setup and Run :
-Edit the file "inject-hevc-hdr-metadata.command" by any text editor such as "TextEdit.app".
+Edit the file "inject-hevc-dhdr-metadata.command" by any text editor such as "TextEdit.app".
 
 Find the "Settings" section and edit some values if needed.
 
@@ -62,5 +62,5 @@ MKVToolNix (app) : a set of tools to create, alter and inspect mkv file ( https:
 
 ### To Report Bug :
 Please Report to
-https://github.com/alpha-0/inject-hevc-hdr-metadata/issues
+https://github.com/alpha-0/inject-hevc-dhdr-metadata/issues
 <BR/><BR/>
