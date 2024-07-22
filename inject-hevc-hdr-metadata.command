@@ -48,19 +48,19 @@ CLEAN_UP_ON_SUCCESS=TRUE
 
 ## Settings of Required Tools (+ MKVToolNix app installed in Applications folder)
 # Set full path of ffmpeg command
-FFMPEG_BIN="/Users/Shared/FastFlix/ffmpeg"
+FFMPEG_BIN="/Users/Shared/video_tools/ffmpeg"
 
 # Set full path of ffprobe command (NOT NEEDED IN THIS VERSION)
-#FFPROBE_BIN="/Users/Shared/FastFlix/ffprobe"
+#FFPROBE_BIN="/Users/Shared/video_tools/ffprobe"
 
 # Set full path of hdr10plus_tool command
-HDR10PLUS_TOOL_BIN="/Users/Shared/FastFlix/hdr10plus_tool"
+HDR10PLUS_TOOL_BIN="/Users/Shared/video_tools/hdr10plus_tool"
 
 # Set full path of dovi_tool command
-DOVI_TOOL_BIN="/Users/Shared/FastFlix/dovi_tool"
+DOVI_TOOL_BIN="/Users/Shared/video_tools/dovi_tool"
 
 # Set full path of mp4muxer command (NOT NEEDED IN THIS VERSION)
-#MP4MUXER_BIN="/Users/Shared/FastFlix/mp4muxer"
+#MP4MUXER_BIN="/Users/Shared/video_tools/mp4muxer"
 
 # Set full path of your Applications folder
 APP_DIR="/Applications/"
