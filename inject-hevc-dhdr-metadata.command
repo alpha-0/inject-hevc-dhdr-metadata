@@ -45,6 +45,9 @@ REPLACE_HDR10PLUS_METADATA=FALSE
 # Enable cleaning up temporary files after creating the target video (Enable: TRUE)
 CLEAN_UP_ON_SUCCESS=TRUE
 
+# Enable cleaning up temporary files after error occurs (Enable: TRUE)
+CLEAN_UP_ON_ERROR=TRUE
+
 
 ## Settings of Required Tools (+ MKVToolNix app installed in Applications folder)
 # Set full path of ffmpeg command
@@ -246,6 +249,46 @@ EXTENSION=$(echo "${FILENAME:${#BASENAME} + 1}" | tr '[:upper:]' '[:lower:]')
 TARGET_VIDEO=${OUTPUT_FOLDER}/${BASENAME}
 
 
+# Function: CleaningExtractedFiles
+# Description: To clean up temporary extracted files.
+# Return: Nil
+CleaningExtractedFiles()
+{
+    tput bold ; echo ; echo '♻️  ' 'Cleaning up those extracted files' ; tput sgr0
+    if [ -f "${HDR_NAME}.DHDR-SRC.hevc" ]; then
+      rm -f "${HDR_NAME}.DHDR-SRC.hevc"
+    fi
+    if [ -f "${HDR_NAME}.DV-RPU.bin" ]; then
+      rm -f "${HDR_NAME}.DV-RPU.bin"
+    fi
+    if [ -f "${HDR_NAME}.HDR10PLUS.json" ]; then
+      rm -f "${HDR_NAME}.HDR10PLUS.json"
+    fi
+    if [ -f "${SOURCE_NAME}.SRC.hevc" ]; then
+      rm -f "${SOURCE_NAME}.SRC.hevc"
+    fi
+    if [ -f "${SOURCE_HEVC}" ]; then
+      rm -f "${SOURCE_HEVC}"
+    fi
+    if [ -f "${TARGET_VIDEO}.hevc" ]; then
+      rm -f "${TARGET_VIDEO}.hevc"
+    fi
+}
+
+
+# Function: CleaningExtractedFilesOnError
+# Description: To clean up temporary extracted files after error occurs.
+# Return: Nil
+CleaningExtractedFilesOnError()
+{
+  CLEAN_UP_ON_ERROR=$(echo "${CLEAN_UP_ON_ERROR}" | tr '[:lower:]' '[:upper:]')
+  if [[ "${CLEAN_UP_ON_ERROR}" == "TRUE"  ]]; then
+    echo
+    CleaningExtractedFiles
+  fi
+}
+
+
 ## Extract dv/hdr10plus metadata from the dv/hdr10plus video
 tput bold ; echo ; echo '♻️  ' 'Extracting hevc track from the dv/hdr10plus video' ; tput sgr0
 FILENAME=$(basename "$HDR_VIDEO")
@@ -261,9 +304,10 @@ if [[ "${EXTENSION}" == "mkv" ]]; then
     let i++
     CODECID=$(${MKVTOOLNIX_BIN_PATH}/mkvinfo "$HDR_VIDEO" | grep -e 'track ID' -e 'Codec ID' | head -n $i | tail -n 1 | awk '{print $5;}' | sed 's/)//g')
     if [[ "${CODECID}" == *"HEVC"* ]]; then
-      ${MKVTOOLNIX_BIN_PATH}/mkvextract "$HDR_VIDEO" tracks ${TRACKID}:"${HDR_NAME}.DV.hevc"
+      ${MKVTOOLNIX_BIN_PATH}/mkvextract "$HDR_VIDEO" tracks ${TRACKID}:"${HDR_NAME}.DHDR-SRC.hevc"
       if [ $? -ne 0 ]; then
         echo ERROR on extracing hevc track.
+        CleaningExtractedFilesOnError
         exit 1
       fi
       break
@@ -272,30 +316,31 @@ if [[ "${EXTENSION}" == "mkv" ]]; then
 fi
 # Extract hevc track from mp4 file
 if [[ "${EXTENSION}" == "mp4" ]]; then
-  ${FFMPEG_BIN} -y -i "$HDR_VIDEO" -map 0:v:0 -c:v copy -bsf:v hevc_mp4toannexb -f hevc -tag:v hvc1 "${HDR_NAME}.DV.hevc"
+  ${FFMPEG_BIN} -y -i "$HDR_VIDEO" -map 0:v:0 -c:v copy -bsf:v hevc_mp4toannexb -f hevc -tag:v hvc1 "${HDR_NAME}.DHDR-SRC.hevc"
   if [ $? -ne 0 ]; then
     echo ERROR on extracing hevc track.
+    CleaningExtractedFilesOnError
     exit 1
   fi
 fi
 # Extract dv metadata from the extracted hevc track
-if [ -f "${HDR_NAME}.DV.hevc" ]; then
+if [ -f "${HDR_NAME}.DHDR-SRC.hevc" ]; then
   tput bold ; echo ; echo '♻️  ' 'Extracting dv metadata from the dv/hdr10plus hevc track' ; tput sgr0
-  ${DOVI_TOOL_BIN} extract-rpu -i "${HDR_NAME}.DV.hevc" -o "${HDR_NAME}.RPU.bin"
+  ${DOVI_TOOL_BIN} extract-rpu -i "${HDR_NAME}.DHDR-SRC.hevc" -o "${HDR_NAME}.DV-RPU.bin"
 fi
-if [ -f "${HDR_NAME}.RPU.bin" ]; then
-  FILESIZE=$(stat -f%z "${HDR_NAME}.RPU.bin")
+if [ -f "${HDR_NAME}.DV-RPU.bin" ]; then
+  FILESIZE=$(stat -f%z "${HDR_NAME}.DV-RPU.bin")
   if [[ $(bc <<< "${FILESIZE} == 0") -eq 1 ]]; then
-    echo "${HDR_NAME}.RPU.bin" contains no dv metadata.
+    echo "${HDR_NAME}.DV-RPU.bin" contains no dv metadata.
     echo
-    rm -f "${HDR_NAME}.RPU.bin"
+    rm -f "${HDR_NAME}.DV-RPU.bin"
     echo dv metadata file is removed.
   fi
 fi
 # Extract hdr10plus metadata from the extracted hevc track
-if [ -f "${HDR_NAME}.DV.hevc" ]; then
+if [ -f "${HDR_NAME}.DHDR-SRC.hevc" ]; then
   tput bold ; echo ; echo '♻️  ' 'Extracting hdr10plus metadata from the dv/hdr10plus hevc track' ; tput sgr0
-  ${HDR10PLUS_TOOL_BIN} extract -i "${HDR_NAME}.DV.hevc" -o "${HDR_NAME}.HDR10PLUS.json"
+  ${HDR10PLUS_TOOL_BIN} extract -i "${HDR_NAME}.DHDR-SRC.hevc" -o "${HDR_NAME}.HDR10PLUS.json"
 fi
 if [ -f "${HDR_NAME}.HDR10PLUS.json" ]; then
   FILESIZE=$(stat -f%z "${HDR_NAME}.HDR10PLUS.json")
@@ -307,9 +352,10 @@ if [ -f "${HDR_NAME}.HDR10PLUS.json" ]; then
   fi
 fi
 # Check if eithor dv or hdr10plus metadata exists
-if [[ (! -f "${HDR_NAME}.RPU.bin") && (! -f "${HDR_NAME}.HDR10PLUS.json") ]]; then
+if [[ (! -f "${HDR_NAME}.DV-RPU.bin") && (! -f "${HDR_NAME}.HDR10PLUS.json") ]]; then
   echo ERROR! No dv/hdr10plus metadata is extracted.
   echo
+  CleaningExtractedFilesOnError
   exit 1
 fi
 
@@ -332,6 +378,7 @@ if [[ "${EXTENSION}" == "mkv" ]]; then
       ${MKVTOOLNIX_BIN_PATH}/mkvextract "$SOURCE_VIDEO" tracks ${TRACKID}:"${SOURCE_NAME}.SRC.hevc"
       if [ $? -ne 0 ]; then
         echo ERROR on extracing hevc track.
+        CleaningExtractedFilesOnError
         exit 1
       fi
       break
@@ -343,6 +390,7 @@ if [[ "${EXTENSION}" == "mp4" ]]; then
   ${FFMPEG_BIN} -y -i "$SOURCE_VIDEO" -map 0:v:0 -c:v copy -bsf:v hevc_mp4toannexb -f hevc -tag:v hvc1 "${SOURCE_NAME}.SRC.hevc"
   if [ $? -ne 0 ]; then
     echo ERROR on extracing hevc track.
+    CleaningExtractedFilesOnError
     exit 1
   fi
 fi
@@ -350,13 +398,13 @@ fi
 if [ -f "${SOURCE_NAME}.SRC.hevc" ]; then
   SOURCE_HEVC=${SOURCE_NAME}.SRC.hevc
   SKIP_INJECT_DV=
-  if [ -f "${HDR_NAME}.RPU.bin" ]; then
+  if [ -f "${HDR_NAME}.DV-RPU.bin" ]; then
     REPLACE_DV_METADATA=$(echo "${REPLACE_DV_METADATA}" | tr '[:lower:]' '[:upper:]')
     if [[ "${REPLACE_DV_METADATA}" != "TRUE"  ]]; then
       tput bold ; echo ; echo '♻️  ' 'Testing dv metadata on the hevc track of source video 2' ; tput sgr0
-      ${DOVI_TOOL_BIN} extract-rpu -i "${SOURCE_HEVC}" -o "${SOURCE_HEVC}.RPU.bin"
-      if [ -f "${SOURCE_HEVC}.RPU.bin" ]; then
-        FILESIZE=$(stat -f%z "${SOURCE_HEVC}.RPU.bin")
+      ${DOVI_TOOL_BIN} extract-rpu -i "${SOURCE_HEVC}" -o "${SOURCE_HEVC}.DV-RPU.bin"
+      if [ -f "${SOURCE_HEVC}.DV-RPU.bin" ]; then
+        FILESIZE=$(stat -f%z "${SOURCE_HEVC}.DV-RPU.bin")
         if [[ $(bc <<< "${FILESIZE} == 0") -eq 0 ]]; then
           SKIP_INJECT_DV="TRUE"
           echo
@@ -365,19 +413,22 @@ if [ -f "${SOURCE_NAME}.SRC.hevc" ]; then
           echo '   from source video 1.'
           echo
         fi
-        rm -f "${SOURCE_HEVC}.RPU.bin"
+        rm -f "${SOURCE_HEVC}.DV-RPU.bin"
       fi
     fi
     if [ -z "${SKIP_INJECT_DV}" ]; then
       tput bold ; echo ; echo '♻️  ' 'Injecting dv metadata and outputing to a new hevc track' ; tput sgr0
-      ${DOVI_TOOL_BIN} inject-rpu -i "${SOURCE_HEVC}" --rpu-in "${HDR_NAME}.RPU.bin" -o "${TARGET_VIDEO}${OUTPUT_DV_SUFFIX}.hevc"
+      ${DOVI_TOOL_BIN} inject-rpu -i "${SOURCE_HEVC}" --rpu-in "${HDR_NAME}.DV-RPU.bin" -o "${TARGET_VIDEO}${OUTPUT_DV_SUFFIX}.hevc"
       if [ $? -ne 0 ]; then
         echo ERROR on injecting dv metadata.
+        CleaningExtractedFilesOnError
         exit 1
       fi
       SOURCE_HEVC=${TARGET_VIDEO}${OUTPUT_DV_SUFFIX}.hevc
       TARGET_VIDEO=${TARGET_VIDEO}${OUTPUT_DV_SUFFIX}
     fi
+  else
+    SKIP_INJECT_DV="TRUE"
   fi
   SKIP_INJECT_HDR10PLUS=
   if [ -f "${HDR_NAME}.HDR10PLUS.json" ]; then
@@ -399,22 +450,28 @@ if [ -f "${SOURCE_NAME}.SRC.hevc" ]; then
       ${HDR10PLUS_TOOL_BIN} inject -i "${SOURCE_HEVC}" -j "${HDR_NAME}.HDR10PLUS.json" -o "${TARGET_VIDEO}${OUTPUT_HDR10PLUS_SUFFIX}.hevc"
       if [ $? -ne 0 ]; then
         echo ERROR on injecting hdr10plus metadata.
+        CleaningExtractedFilesOnError
         exit 1
       fi
       TARGET_VIDEO=${TARGET_VIDEO}${OUTPUT_HDR10PLUS_SUFFIX}
     fi
+  else
+    SKIP_INJECT_HDR10PLUS="TRUE"
   fi
   if [[ -n "${SKIP_INJECT_DV}" && -n "${SKIP_INJECT_HDR10PLUS}" ]]; then
-    echo ERROR! Source video 2 already contains dv/hdr10plus metadata which are copied.
+    echo ERROR! Both dv/hdr10plus metadata injections are not done on source video 2
+    echo because it already contains dv/hdr10plus metadata which is copied.
     echo The replace dv/hdr10plus metadata option on this script is set to FALSE, and
     echo therefore no additional dv/hdr10plus metadata injection is needed.
     echo
+    CleaningExtractedFilesOnError
     exit 1
   fi
 fi
 if [ ! -f "${TARGET_VIDEO}.hevc" ]; then
   echo ERROR! The new hevc track with dv/hdr10plus metadata is not created.
   echo
+  CleaningExtractedFilesOnError
   exit 1
 fi
 
@@ -437,26 +494,13 @@ if [ $? -eq 0 ]; then
   CLEAN_UP_ON_SUCCESS=$(echo "${CLEAN_UP_ON_SUCCESS}" | tr '[:lower:]' '[:upper:]')
   if [[ "${CLEAN_UP_ON_SUCCESS}" == "TRUE"  ]]; then
     echo
-    tput bold ; echo ; echo '♻️  ' 'Cleaning up those extracted files' ; tput sgr0
-    if [ -f "${HDR_NAME}.DV.hevc" ]; then
-      rm -f "${HDR_NAME}.DV.hevc"
-    fi
-    if [ -f "${HDR_NAME}.RPU.bin" ]; then
-      rm -f "${HDR_NAME}.RPU.bin"
-    fi
-    if [ -f "${HDR_NAME}.HDR10PLUS.json" ]; then
-      rm -f "${HDR_NAME}.HDR10PLUS.json"
-    fi
-    if [ -f "${SOURCE_NAME}.SRC.hevc" ]; then
-      rm -f "${SOURCE_NAME}.SRC.hevc"
-    fi
-    if [ -f "${SOURCE_HEVC}" ]; then
-      rm -f "${SOURCE_HEVC}"
-    fi
-    if [ -f "${TARGET_VIDEO}.hevc" ]; then
-      rm -f "${TARGET_VIDEO}.hevc"
-    fi
+    CleaningExtractedFiles
   fi
+else
+  echo
+  echo ERROR! Fail to make a new .mkv video file.
+  CleaningExtractedFilesOnError
+  exit 1
 fi
 echo
 
