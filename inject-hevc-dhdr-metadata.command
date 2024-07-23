@@ -17,7 +17,7 @@
 # the path of source video which its content will be copied.
 # Then it will request your input for the path of output (work) folder.
 # After that, the script will run and a new copied video will be
-# injected with dv metadata at the end.
+# injected with dv/hdr10plus metadata at the end.
 #
 # If you are using terminal, you can run the command script with arguments as follows.
 #
@@ -154,7 +154,7 @@ if [ -n "${MISSING_TOOLS}" ]; then
 fi
 
 
-## Check and request for the dv video and the source video files
+## Check and request for the dv/hdr10plus video and the source video files
 tput bold ; echo ; echo '♻️  ' 'Checking required input files' ; tput sgr0
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 echo
@@ -280,7 +280,7 @@ if [[ "${EXTENSION}" == "mp4" ]]; then
 fi
 # Extract dv metadata from the extracted hevc track
 if [ -f "${HDR_NAME}.DV.hevc" ]; then
-  tput bold ; echo ; echo '♻️  ' 'Extracting dv metadata from the dv hevc track' ; tput sgr0
+  tput bold ; echo ; echo '♻️  ' 'Extracting dv metadata from the dv/hdr10plus hevc track' ; tput sgr0
   ${DOVI_TOOL_BIN} extract-rpu -i "${HDR_NAME}.DV.hevc" -o "${HDR_NAME}.RPU.bin"
 fi
 if [ -f "${HDR_NAME}.RPU.bin" ]; then
@@ -315,7 +315,7 @@ fi
 
 
 ## Extract hevc track from the source video 2
-## and then inject dv metadata and output to a new hevc track
+## and then inject dv/hdr10plus metadata and output to a new hevc track
 tput bold ; echo ; echo '♻️  ' 'Extracting hevc track from the source video 2' ; tput sgr0
 FILENAME=$(basename "$SOURCE_VIDEO")
 BASENAME="${FILENAME%.[^.]*}"
@@ -419,7 +419,7 @@ if [ ! -f "${TARGET_VIDEO}.hevc" ]; then
 fi
 
 
-## Merge the new hevc track and all tracks except hevc track on the source video (without dv metadata)
+## Merge the new hevc track and all tracks except hevc track on the source video 2
 ## and then output to a new .mkv video file
 tput bold ; echo ; echo '♻️  ' 'Merging the new hevc track and all tracks except hevc track from the' ; tput sgr0
 tput bold ; echo ; echo '   ' 'source video and outputing to a new .mkv video file' ; tput sgr0
